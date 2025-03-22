@@ -3,77 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prank Terjebak!</title>
+    <title>Prank Tidak Bisa Keluar</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
-            background: black;
-            color: white;
             font-family: Arial, sans-serif;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        h1 {
-            font-size: 2rem;
-        }
-
-        p {
-            margin-top: 10px;
-            font-size: 1.2rem;
+            user-select: none; /* Cegah seleksi teks */
         }
         
+        body {
+            background-color: black;
+            color: white;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #passwordBox {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        input {
+            padding: 8px;
+            margin-top: 10px;
+            width: 80%;
+        }
+
         button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1rem;
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
             background: red;
             color: white;
-            border: none;
             cursor: pointer;
+            font-size: 18px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Anda Terjebak!</h1>
-    <p>Coba keluar dari halaman ini jika bisa!</p>
-    <button onclick="mintaPassword()">Keluar</button>
+    <h1>😂 Tidak Bisa Keluar!</h1>
+    <p>Selamat mencoba keluar dari halaman ini...</p>
+
+    <!-- Kotak Input Password -->
+    <div id="passwordBox">
+        <p>Masukkan password untuk keluar:</p>
+        <input type="password" id="exitPassword">
+        <button onclick="checkPassword()">Kirim</button>
+    </div>
 
     <script>
-        // **1. Blokir tombol "Kembali"**
-        window.onload = function () {
-            history.pushState(null, null, location.href);
-        };
-        window.onpopstate = function () {
-            history.pushState(null, null, location.href);
-            alert("Anda tidak bisa kembali!");
-        };
-
-        // **2. Cegah pengguna menutup tab atau keluar**
-        window.addEventListener("beforeunload", function (e) {
-            e.preventDefault();
-            e.returnValue = "Anda yakin ingin meninggalkan halaman ini?";
-        });
-
-        // **3. Paksa pengguna tetap di halaman ini**
-        setInterval(function () {
-            if (document.visibilityState === "hidden") {
-                location.href = location.href; // Reload jika pengguna beralih aplikasi
-            }
-        }, 1000);
-
-        // **4. Fullscreen otomatis (termasuk di HP)**
-        function enableFullscreen() {
+        // Paksa masuk mode fullscreen
+        function forceFullscreen() {
             let elem = document.documentElement;
             if (elem.requestFullscreen) {
                 elem.requestFullscreen();
@@ -86,17 +81,56 @@
             }
         }
 
-        enableFullscreen();
+        // Cegah keluar dari fullscreen
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                forceFullscreen();
+            }
+        });
 
-        // **5. Minta password sebelum keluar**
-        function mintaPassword() {
-            let password = prompt("Masukkan password untuk keluar:");
-            if (password === "1234") {
-                alert("Anda bebas!");
+        // Cegah pengguna keluar dengan tombol kembali atau refresh
+        window.onload = function() {
+            history.pushState(null, null, location.href);
+        };
+
+        window.onpopstate = function() {
+            history.pushState(null, null, location.href);
+            alert("Anda tidak bisa kembali!");
+        };
+
+        // Paksa reload jika pengguna coba keluar atau sembunyikan tab
+        document.addEventListener("visibilitychange", function() {
+            if (document.hidden) {
+                location.reload();
+            }
+        });
+
+        // Blokir semua event klik agar tidak bisa tekan "Keluar" di Chrome
+        document.addEventListener("click", function(event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }, true);
+
+        // Buka password box saat tekan ESC (jika ingin keluar)
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                document.getElementById("passwordBox").style.display = "block";
+            }
+        });
+
+        // Cek password untuk keluar
+        function checkPassword() {
+            let password = document.getElementById("exitPassword").value;
+            if (password === "12345") { // Ganti password di sini
+                alert("Anda berhasil keluar!");
+                window.close(); // Coba tutup tab
             } else {
-                alert("Salah! Anda tetap terjebak!");
+                alert("Password salah!");
             }
         }
+
+        // Jalankan fullscreen otomatis saat halaman dimuat
+        forceFullscreen();
     </script>
 </body>
 </html>
