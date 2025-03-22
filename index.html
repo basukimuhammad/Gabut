@@ -3,141 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PRANK TERKUNCI</title>
+    <title>Prank Terjebak!</title>
     <style>
-    body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: black;
-    color: white;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.container {
-    background: rgba(255, 0, 0, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(255, 0, 0, 1);
-}
+        body {
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-input {
-    padding: 10px;
-    margin: 10px;
-    border: none;
-    border-radius: 5px;
-}
+        h1 {
+            font-size: 2rem;
+        }
 
-button {
-    padding: 10px 20px;
-    background-color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-#error-message {
-    color: yellow;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
+        p {
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+        
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body onload="goFullscreen()">
-
-    <div class="container">
-        <h1>ANDA TERKUNCI!</h1>
-        <p>Masukkan password untuk keluar dari halaman ini.</p>
-        <input type="password" id="password" placeholder="Masukkan Password">
-        <button onclick="checkPassword()">Submit</button>
-        <p id="error-message"></p>
-    </div>
+<body>
+    <h1>Anda Terjebak!</h1>
+    <p>Coba keluar dari halaman ini jika bisa!</p>
+    <button onclick="mintaPassword()">Keluar</button>
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    // Masuk ke mode fullscreen otomatis saat halaman dimuat
-    function goFullscreen() {
-        let elem = document.documentElement;
-        if (elem.requestFullscreen) {
-            elem.requestFullscreen();
-        } else if (elem.mozRequestFullScreen) { // Firefox
-            elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullscreen) { // Chrome, Safari
-            elem.webkitRequestFullscreen();
-        } else if (elem.msRequestFullscreen) { // IE/Edge
-            elem.msRequestFullscreen();
-        }
-    }
-    goFullscreen();
+        // **1. Blokir tombol "Kembali"**
+        window.onload = function () {
+            history.pushState(null, null, location.href);
+        };
+        window.onpopstate = function () {
+            history.pushState(null, null, location.href);
+            alert("Anda tidak bisa kembali!");
+        };
 
-    // Mencegah keluar dari fullscreen
-    document.addEventListener("fullscreenchange", function () {
-        if (!document.fullscreenElement) {
-            goFullscreen();
-        }
-    });
-
-    // Mencegah tombol kembali di browser
-    history.pushState(null, null, location.href);
-    window.onpopstate = function () {
-        history.pushState(null, null, location.href);
-    };
-
-    // Mencegah klik kanan
-    document.addEventListener("contextmenu", function (e) {
-        e.preventDefault();
-    });
-
-    // Blokir shortcut keyboard (Ctrl, Alt, F4, Esc, dll.)
-    document.addEventListener("keydown", function (e) {
-        if (
-            e.key === "Escape" || 
-            e.key === "F11" || 
-            e.key === "F12" || 
-            (e.ctrlKey && (e.key === "w" || e.key === "r" || e.key === "u" || e.key === "s" || e.key === "p")) || 
-            (e.altKey && e.key === "Tab")
-        ) {
+        // **2. Cegah pengguna menutup tab atau keluar**
+        window.addEventListener("beforeunload", function (e) {
             e.preventDefault();
-        }
-    });
+            e.returnValue = "Anda yakin ingin meninggalkan halaman ini?";
+        });
 
-    // Mencegah pengguna membuka developer tools
-    function blockDevTools() {
+        // **3. Paksa pengguna tetap di halaman ini**
         setInterval(function () {
-            let devtools = new Function("debugger");
-            try {
-                devtools();
-            } catch (e) {
-                document.body.innerHTML = "<h1 style='color:red;'>Jangan mencoba curang!</h1>";
+            if (document.visibilityState === "hidden") {
+                location.href = location.href; // Reload jika pengguna beralih aplikasi
             }
-        }, 100);
-    }
-    blockDevTools();
+        }, 1000);
 
-    // Mencegah keluar dengan menutup tab
-    window.addEventListener("beforeunload", function (e) {
-        e.preventDefault();
-        e.returnValue = "Anda yakin ingin meninggalkan halaman ini?";
-    });
-});
+        // **4. Fullscreen otomatis (termasuk di HP)**
+        function enableFullscreen() {
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
 
-// Fungsi untuk memeriksa password sebelum keluar
-function checkPassword() {
-    let passwordInput = document.getElementById("password").value;
-    let errorMessage = document.getElementById("error-message");
+        enableFullscreen();
 
-    if (passwordInput === "12345") { // Ganti dengan password yang kamu mau
-        alert("Password benar! Anda bisa keluar sekarang.");
-        document.exitFullscreen(); // Keluar dari fullscreen
-        window.location.href = "https://www.google.com"; // Redirect ke halaman lain
-    } else {
-        errorMessage.textContent = "Password salah! Coba lagi.";
-    }
-}
-
+        // **5. Minta password sebelum keluar**
+        function mintaPassword() {
+            let password = prompt("Masukkan password untuk keluar:");
+            if (password === "1234") {
+                alert("Anda bebas!");
+            } else {
+                alert("Salah! Anda tetap terjebak!");
+            }
+        }
     </script>
 </body>
 </html>
